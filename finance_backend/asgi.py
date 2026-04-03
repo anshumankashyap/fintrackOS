@@ -1,0 +1,5 @@
+"""finance_backend/asgi.py"""
+import os
+from django.core.asgi import get_asgi_application
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "finance_backend.settings.production")
+application = get_asgi_application()
