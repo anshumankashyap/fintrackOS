@@ -17,7 +17,7 @@ from django.db import models
 from django.utils import timezone
 
 
-# ── Role Constants ────────────────────────────────────────────────
+# Role Constants
 
 class Role(models.TextChoices):
     VIEWER  = "viewer",  "Viewer"    # Read-only access
@@ -25,7 +25,7 @@ class Role(models.TextChoices):
     ADMIN   = "admin",   "Admin"     # Full access + user management
 
 
-# ── Custom Manager ────────────────────────────────────────────────
+# Custom Manager
 
 class UserManager(BaseUserManager):
     """
@@ -49,7 +49,7 @@ class UserManager(BaseUserManager):
         return self.create_user(email, password, role=Role.ADMIN, **extra_fields)
 
 
-# ── User Model ────────────────────────────────────────────────────
+# User Model
 
 class User(AbstractBaseUser, PermissionsMixin):
     """
@@ -81,10 +81,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff    = models.BooleanField(default=False)
     date_joined = models.DateTimeField(default=timezone.now)
 
-    # ── Manager ──────────────────────────────────────────────────
+    # Manager
     objects = UserManager()
 
-    # ── Auth config ──────────────────────────────────────────────
+    # Auth config
     USERNAME_FIELD  = "email"
     REQUIRED_FIELDS = []
 
@@ -94,13 +94,13 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name       = "User"
         verbose_name_plural = "Users"
 
-    # ── Properties ───────────────────────────────────────────────
+    # Properties
 
     @property
     def full_name(self) -> str:
         return f"{self.first_name} {self.last_name}".strip() or self.email
 
-    # ── RBAC helpers (used by permission classes) ─────────────────
+    # RBAC helpers (used by permission classes)
 
     @property
     def is_viewer(self) -> bool:

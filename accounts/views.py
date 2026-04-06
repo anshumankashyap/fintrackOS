@@ -29,7 +29,7 @@ from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from core.responses import created_response, no_content_response, success_response
+from core.responses import created_response, empty_no_content_response, success_response
 from permissions.rbac import IsAdmin
 
 from .models import User
@@ -79,6 +79,7 @@ class LoginView(TokenObtainPairView):
     The access token payload contains: user_id, email, role, full_name.
     """
     serializer_class = CustomTokenObtainPairSerializer
+    throttle_classes = [ScopedRateThrottle]
     throttle_scope = "auth"
 
 
@@ -220,4 +221,4 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
         instance.is_active = False
         instance.save(update_fields=["is_active"])
         logger.info("Admin %s deactivated user %s", request.user.email, instance.email)
-        return no_content_response(message=f"User {instance.email} has been deactivated.")
+        return empty_no_content_response()

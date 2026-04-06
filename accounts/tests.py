@@ -22,7 +22,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .models import Role, User
 
 
-# ── Factories ─────────────────────────────────────────────────────
+# Factories
 
 def make_user(email="test@example.com", password="StrongPass123!", role=Role.VIEWER, **kwargs):
     return User.objects.create_user(email=email, password=password, role=role, **kwargs)
@@ -45,7 +45,7 @@ def auth_client(user) -> APIClient:
     return client
 
 
-# ── Model Tests ───────────────────────────────────────────────────
+# Model Tests
 
 class UserModelTest(APITestCase):
 
@@ -83,7 +83,7 @@ class UserModelTest(APITestCase):
         self.assertEqual(su.role, Role.ADMIN)
 
 
-# ── Registration Tests ────────────────────────────────────────────
+# Registration Tests
 
 class RegistrationTest(APITestCase):
 
@@ -134,7 +134,7 @@ class RegistrationTest(APITestCase):
         self.assertEqual(resp.data["data"]["email"], "upper@example.com")
 
 
-# ── Login Tests ───────────────────────────────────────────────────
+# Login Tests
 
 class LoginTest(APITestCase):
 
@@ -170,7 +170,7 @@ class LoginTest(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
-# ── Logout Tests ──────────────────────────────────────────────────
+# Logout Tests
 
 class LogoutTest(APITestCase):
 
@@ -195,7 +195,7 @@ class LogoutTest(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-# ── Profile Tests ─────────────────────────────────────────────────
+# Profile Tests
 
 class ProfileTest(APITestCase):
 
@@ -254,7 +254,7 @@ class ChangePasswordTest(APITestCase):
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
 
 
-# ── Admin User Management Tests ───────────────────────────────────
+# Admin User Management Tests
 
 class AdminUserManagementTest(APITestCase):
 
@@ -285,7 +285,7 @@ class AdminUserManagementTest(APITestCase):
     def test_admin_can_deactivate_user(self):
         url  = reverse("user-detail", kwargs={"pk": self.analyst.id})
         resp = self.admin_client.delete(url)
-        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
         self.analyst.refresh_from_db()
         self.assertFalse(self.analyst.is_active)
 

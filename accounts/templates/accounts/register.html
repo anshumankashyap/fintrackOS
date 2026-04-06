@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 440px;">
+  <div class="card shadow-sm border-0 rounded-4">
+    <div class="card-body p-4 p-md-5">
+      <div class="text-center mb-4">
+        <h1 class="h4 fw-bold mb-1">Create account</h1>
+        <p class="text-muted small mb-0">You’ll start as a Viewer until an Admin promotes you.</p>
+      </div>
+      <div id="registerError" class="alert alert-danger d-none small"></div>
+      <div id="registerSuccess" class="alert alert-success d-none small">Account created. Redirecting…</div>
+      <form id="registerForm" novalidate>
+        {% csrf_token %}
+        <div class="row g-2 mb-2">
+          <div class="col-md-6">
+            <label class="form-label">First name</label>
+            <input type="text" class="form-control" id="regFirstName" required maxlength="150">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Last name</label>
+            <input type="text" class="form-control" id="regLastName" required maxlength="150">
+          </div>
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" id="regEmail" required autocomplete="email">
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-control" id="regPassword" required minlength="8" autocomplete="new-password">
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Confirm password</label>
+          <input type="password" class="form-control" id="regConfirm" required minlength="8" autocomplete="new-password">
+          <div id="matchFeedback" class="form-text"></div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100" id="registerBtn">Create account</button>
+      </form>
+      <p class="text-center text-muted small mt-4 mb-0">
+        Already have an account? <a href="{% url 'web-login' %}">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/auth.js' %}"></script>
+<script>document.addEventListener("DOMContentLoaded", () => initRegister());</script>
+{% endblock %}

@@ -2,9 +2,6 @@
 records/serializers.py
 ───────────────────────
 Serializers for the FinancialRecord model.
-
-  FinancialRecordSerializer      — full read/write (create + update)
-  FinancialRecordListSerializer  — lightweight list view (no description)
 """
 
 from datetime import date
@@ -18,21 +15,13 @@ from .models import FinancialRecord, TransactionType
 
 class FinancialRecordSerializer(serializers.ModelSerializer):
     """
-    Full serializer — used for create, retrieve, and update.
-
-    Validation rules:
-      - amount must be > 0
-      - transaction_type must be 'income' or 'expense'
-      - date cannot be more than 10 years in the past
-      - date cannot be in the future
-      - title and category are stripped of leading/trailing whitespace
+    Full serializer — used for create, retrieve, and update (Admin only via RBAC).
     """
 
-    # Nested read-only creator info
     created_by_detail = UserSerializer(source="created_by", read_only=True)
 
     class Meta:
-        model  = FinancialRecord
+        model = FinancialRecord
         fields = [
             "id",
             "title",
@@ -50,8 +39,6 @@ class FinancialRecordSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "description": {"required": False, "default": ""},
         }
-
-    # ── Field-level validation ────────────────────────────────────
 
     def validate_amount(self, value):
         if value <= 0:
@@ -72,17 +59,16 @@ class FinancialRecordSerializer(serializers.ModelSerializer):
 
     def validate_date(self, value):
         today = date.today()
-        # Reject future dates
         if value > today:
             raise serializers.ValidationError(
                 f"Transaction date cannot be in the future. Today is {today}."
             )
-        # Reject dates more than 10 years old (configurable)
         from dateutil.relativedelta import relativedelta
+
         oldest_allowed = today - relativedelta(years=10)
         if value < oldest_allowed:
             raise serializers.ValidationError(
-                f"Transaction date cannot be more than 10 years in the past."
+                "Transaction date cannot be more than 10 years in the past."
             )
         return value
 
@@ -95,43 +81,58 @@ class FinancialRecordSerializer(serializers.ModelSerializer):
         return value
 
     def validate_category(self, value):
-        value = value.strip()
-        if not value:
+        raw = (value or "").strip()
+        if not raw:
             raise serializers.ValidationError("Category cannot be blank.")
-        return value.title()   # Normalise capitalisation: "travel" → "Travel"
-
-    # ── Cross-field validation ─────────────────────────────────────
+        allowed = {c[0] for c in FinancialRecord.CATEGORY_CHOICES}
+        for choice, _ in FinancialRecord.CATEGORY_CHOICES:
+            if choice.lower() == raw.lower():
+                return choice
+        raise serializers.ValidationError(
+            f"Invalid category '{raw}'. Must be one of: {', '.join(sorted(allowed))}."
+        )
 
     def validate(self, attrs):
-        # Example cross-field rule: large single expenses need a description
+        if self.instance:
+            t_type = attrs.get("transaction_type", self.instance.transaction_type)
+            amount = attrs.get("amount", self.instance.amount)
+            if "description" in attrs:
+                description = (attrs.get("description") or "").strip()
+            else:
+                description = (self.instance.description or "").strip()
+        else:
+            t_type = attrs.get("transaction_type")
+            amount = attrs.get("amount")
+            description = (attrs.get("description") or "").strip()
+
         if (
-            attrs.get("transaction_type") == TransactionType.EXPENSE
-            and attrs.get("amount", 0) > 10_000
-            and not attrs.get("description", "").strip()
+            t_type == TransactionType.EXPENSE
+            and amount is not None
+            and amount > 10_000
+            and not description
         ):
-            raise serializers.ValidationError({
-                "description": (
-                    "A description is required for expenses exceeding 10,000. "
-                    "Please provide context for this transaction."
-                )
-            })
+            raise serializers.ValidationError(
+                {
+                    "description": (
+                        "A description is required for expenses exceeding 10,000. "
+                        "Please provide context for this transaction."
+                    )
+                }
+            )
         return attrs
 
     def create(self, validated_data):
-        # Inject the requesting user as creator
         validated_data["created_by"] = self.context["request"].user
         return super().create(validated_data)
 
 
 class FinancialRecordListSerializer(serializers.ModelSerializer):
-    """
-    Lightweight serializer for list endpoints — omits description and
-    nested user object to keep response payloads small.
-    """
+    """Lightweight list rows — no description."""
+
     created_by_email = serializers.EmailField(source="created_by.email", read_only=True)
 
     class Meta:
-        model  = FinancialRecord
+        model = FinancialRecord
         fields = [
             "id",
             "title",

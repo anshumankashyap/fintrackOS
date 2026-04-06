@@ -17,7 +17,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Role, User
 
 
-# ── JWT: inject role + name into token payload ────────────────────
+# JWT: inject role + name into token payload
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     """
@@ -47,7 +47,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 
-# ── Registration ──────────────────────────────────────────────────
+# Registration
 
 class UserRegistrationSerializer(serializers.ModelSerializer):
     """
@@ -98,7 +98,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         )
 
 
-# ── User Profile ──────────────────────────────────────────────────
+# User Profile
 
 class UserSerializer(serializers.ModelSerializer):
     """
@@ -115,7 +115,7 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ["id", "email", "role", "date_joined", "last_login"]
 
 
-# ── Admin User View ───────────────────────────────────────────────
+# Admin User View
 
 class AdminUserSerializer(serializers.ModelSerializer):
     """
@@ -139,7 +139,7 @@ class AdminUserSerializer(serializers.ModelSerializer):
         return value
 
 
-# ── Password Change ───────────────────────────────────────────────
+# Password Change
 
 class ChangePasswordSerializer(serializers.Serializer):
     """Used at POST /api/v1/auth/change-password/"""

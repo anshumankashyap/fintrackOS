@@ -1,14 +1,23 @@
-# Django
-*.pyc
-__pycache__/
+# ─────────────────────────────────────────────────────────────────
+# Python & Virtual Environments
+# ─────────────────────────────────────────────────────────────────
+
+# Python compiled files
 *.py[cod]
 *$py.class
 *.so
 .Python
-env/
+
+# Virtual environments
 venv/
-.venv
+env/
 ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Distribution / packaging
+.Python
 build/
 develop-eggs/
 dist/
@@ -21,37 +30,206 @@ parts/
 sdist/
 var/
 wheels/
+pip-wheel-metadata/
+share/python-wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
-# Database
-*.db
-*.sqlite3
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
 db.sqlite3
+db.sqlite3-journal
 
-# IDEs
+# ─────────────────────────────────────────────────────────────────
+# Django Specific
+# ─────────────────────────────────────────────────────────────────
+
+# Static files (collected)
+/staticfiles/
+/static_root/
+/static/
+
+# Media files (user uploads)
+/media/
+/media_root/
+
+# Migrations (local cache only)
+# Uncommit if you want to ignore migrations:
+# **/migrations/*.py
+# !**/migrations/__init__.py
+
+# ─────────────────────────────────────────────────────────────────
+# IDE & Editor Configuration
+# ─────────────────────────────────────────────────────────────────
+
+# VS Code
 .vscode/
+*.code-workspace
+.vscode/settings.json
+.vscode/launch.json
+
+# PyCharm / IntelliJ
 .idea/
+*.iml
+*.iws
+*.ipr
+.python-version
+
+# Sublime
+*.sublime-project
+*.sublime-workspace
+
+# Vim / Neovim
 *.swp
 *.swo
 *~
-.DS_Store
+.vim/
+.netrwhist
+
+# Emacs
+*~
+*#
+.\#*
+
+# Atom
+.atom/
+
+# ─────────────────────────────────────────────────────────────────
+# Environment & Configuration
+# ─────────────────────────────────────────────────────────────────
 
 # Environment variables
 .env
 .env.local
 .env.*.local
+.env.prod
+!.env.example
+!.env.sample
 
-# Logs
+# Secrets
+.secrets/
+secrets/
+*.pem
+*.key
+
+# ─────────────────────────────────────────────────────────────────
+# Logs & Temp Files
+# ─────────────────────────────────────────────────────────────────
+
 logs/
 *.log
+*.log.*
+debug.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Django static and media
-staticfiles/
-media/
-/static/
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*.swo
+*~
+.~*
+$RECYCLE.BIN/
 
-# OS
+# ─────────────────────────────────────────────────────────────────
+# Operating System Files
+# ─────────────────────────────────────────────────────────────────
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+
+# Windows
 Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+.directory
+.Trash-*
+
+# ─────────────────────────────────────────────────────────────────
+# Docker & Container Files
+# ─────────────────────────────────────────────────────────────────
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+
+# Podman
+.podman/
+
+# ─────────────────────────────────────────────────────────────────
+# Database Files
+# ─────────────────────────────────────────────────────────────────
+
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite3-journal
+*.dbm
+*.rdb
+
+# ─────────────────────────────────────────────────────────────────
+# Node.js / Frontend (if applicable)
+# ─────────────────────────────────────────────────────────────────
+
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+yarn.lock
+
+# ─────────────────────────────────────────────────────────────────
+# Build & Distribution Artifacts
+# ─────────────────────────────────────────────────────────────────
+
+*.whl
+*.tar.gz
+*.zip
+dist/
+build/
+
+# ─────────────────────────────────────────────────────────────────
+# IDEs General
+# ─────────────────────────────────────────────────────────────────
+
+.history/
+.venv
+venv
+env

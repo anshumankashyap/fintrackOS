@@ -26,7 +26,7 @@ from records.models import FinancialRecord, TransactionType
 from .services import DashboardService
 
 
-# ── Helpers ───────────────────────────────────────────────────────
+# Helpers
 
 def make_user(email, role=Role.VIEWER):
     return User.objects.create_user(email=email, password="Pass1234!", role=role)
@@ -36,7 +36,7 @@ def auth_client(user):
     c.credentials(HTTP_AUTHORIZATION=f"Bearer {str(RefreshToken.for_user(user).access_token)}")
     return c
 
-def make_record(user, amount, t_type, category="General", days_ago=1):
+def make_record(user, amount, t_type, category="Other", days_ago=1):
     return FinancialRecord.objects.create(
         title=f"{t_type} {amount}",
         amount=Decimal(str(amount)),
@@ -47,7 +47,7 @@ def make_record(user, amount, t_type, category="General", days_ago=1):
     )
 
 
-# ── Service: Summary ──────────────────────────────────────────────
+# Service: Summary
 
 class DashboardServiceSummaryTest(APITestCase):
 
@@ -117,15 +117,15 @@ class DashboardServiceSummaryTest(APITestCase):
         self.assertIn("Rent",   categories)
 
     def test_category_breakdown_net_per_category(self):
-        make_record(self.user, 2000, TransactionType.INCOME,  category="Freelance")
-        make_record(self.user, 500,  TransactionType.EXPENSE, category="Freelance")
+        make_record(self.user, 2000, TransactionType.INCOME,  category="Consulting")
+        make_record(self.user, 500,  TransactionType.EXPENSE, category="Consulting")
         qs      = FinancialRecord.objects.all()
         summary = DashboardService.get_summary(qs)
-        freelance = next(c for c in summary.category_breakdown if c.category == "Freelance")
-        self.assertEqual(freelance.net, Decimal("1500.00"))
+        row = next(c for c in summary.category_breakdown if c.category == "Consulting")
+        self.assertEqual(row.net, Decimal("1500.00"))
 
 
-# ── Service: Monthly Report ───────────────────────────────────────
+# Service: Monthly Report
 
 class DashboardServiceMonthlyTest(APITestCase):
 
@@ -181,7 +181,7 @@ class DashboardServiceMonthlyTest(APITestCase):
         self.assertEqual(len(monthly), 1)
 
 
-# ── API Endpoint Tests ────────────────────────────────────────────
+# API Endpoint Tests
 
 class DashboardAPITest(APITestCase):
 
@@ -192,11 +192,13 @@ class DashboardAPITest(APITestCase):
         self.viewer_c = auth_client(self.viewer)
         self.anon_c   = APIClient()
 
-        make_record(self.admin, 5000, TransactionType.INCOME,  category="Revenue")
-        make_record(self.admin, 2000, TransactionType.EXPENSE, category="Costs")
+        make_record(self.admin, 5000, TransactionType.INCOME,  category="Salary")
+        make_record(self.admin, 2000, TransactionType.EXPENSE, category="Rent")
 
         self.summary_url = reverse("dashboard-summary")
         self.monthly_url = reverse("dashboard-monthly")
+        self.weekly_url = reverse("dashboard-weekly")
+        self.recent_url = reverse("dashboard-recent")
 
     def test_summary_returns_correct_structure(self):
         resp = self.admin_c.get(self.summary_url)
@@ -260,3 +262,17 @@ class DashboardAPITest(APITestCase):
     def test_invalid_date_format_rejected(self):
         resp = self.admin_c.get(self.summary_url, {"date_from": "01-13-2024"})
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_weekly_report_returns_structure(self):
+        resp = self.admin_c.get(self.weekly_url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.data["data"]
+        self.assertIn("weekly_trends", data)
+        self.assertIn("period_weeks", data)
+
+    def test_recent_activity_returns_structure(self):
+        resp = self.admin_c.get(self.recent_url)
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+        data = resp.data["data"]
+        self.assertIn("items", data)
+        self.assertGreaterEqual(len(data["items"]), 1)

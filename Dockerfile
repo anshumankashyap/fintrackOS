@@ -1,11 +1,4 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# Finance Backend — Production Dockerfile
-# Multi-stage build:
-#   Stage 1 (builder) — install Python deps into a virtualenv
-#   Stage 2 (runtime) — copy only the venv + app code; minimal image size
-# ─────────────────────────────────────────────────────────────────────────────
-
-# ── Stage 1: Builder ─────────────────────────────────────────────
+# Stage 1: Builder
 FROM python:3.11-slim AS builder
 
 # System build dependencies (for psycopg2-binary compilation)
@@ -23,7 +16,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && pip install --no-cache-dir -r requirements.txt
 
 
-# ── Stage 2: Runtime ─────────────────────────────────────────────
+# Stage 2: Runtime
 FROM python:3.11-slim AS runtime
 
 # Runtime system deps (only libpq for psycopg2)

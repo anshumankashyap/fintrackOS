@@ -33,7 +33,7 @@ from rest_framework.views import exception_handler
 logger = logging.getLogger("finance")
 
 
-# ── Custom Exception Classes ──────────────────────────────────────
+# Custom Exception Classes
 
 class BusinessLogicError(APIException):
     """Raised when business rules are violated (e.g. invalid state transition)."""
@@ -54,7 +54,7 @@ class FinancialRecordNotFound(NotFound):
     default_code = "RECORD_NOT_FOUND"
 
 
-# ── Error-code map ────────────────────────────────────────────────
+# Error-code map
 
 _CODE_MAP = {
     "authentication_failed":   "AUTHENTICATION_FAILED",

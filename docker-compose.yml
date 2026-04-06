@@ -1,13 +1,8 @@
-# ─────────────────────────────────────────────────────────────────────────────
-# Finance Backend — Docker Compose
-# Spins up: app (Django/Gunicorn) + db (PostgreSQL 15) + cache (Redis 7)
-# ─────────────────────────────────────────────────────────────────────────────
-
 version: "3.9"
 
 services:
 
-  # ── PostgreSQL ────────────────────────────────────────────────────
+  # PostgreSQL 
   db:
     image: postgres:15-alpine
     container_name: finance_db
@@ -26,7 +21,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Redis ─────────────────────────────────────────────────────────
+  # Redis 
   redis:
     image: redis:7-alpine
     container_name: finance_redis
@@ -42,7 +37,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── Django Application ────────────────────────────────────────────
+  # Django Application
   app:
     build:
       context: .

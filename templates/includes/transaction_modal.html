@@ -1,0 +1,56 @@
+{% load static %}
+<div class="modal fade" id="transactionModal" tabindex="-1" aria-labelledby="transactionModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-semibold" id="transactionModalLabel">Add transaction</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <div id="modal-form-error" class="alert alert-danger d-none small"></div>
+        <form id="transactionForm">
+          <input type="hidden" id="tx-id" name="id" value="">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Title</label>
+              <input type="text" class="form-control" id="tx-title" name="title" required minlength="3" maxlength="50" placeholder="e.g. Office supplies">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Amount</label>
+              <input type="number" class="form-control" id="tx-amount" name="amount" required min="0.01" step="0.01" placeholder="0.00">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Category</label>
+              <select class="form-select" id="tx-category" name="category" required>
+                {% for value, label in CATEGORY_CHOICES %}
+                <option value="{{ value }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Type</label>
+              <select class="form-select" id="tx-type" name="transaction_type" required>
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
+              </select>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Date</label>
+              <input type="date" class="form-control" id="tx-date" name="date" required>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Description <span class="text-muted">(optional)</span></label>
+              <textarea class="form-control" id="tx-description" name="description" rows="2" placeholder="Notes"></textarea>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" id="transactionSubmitBtn">
+          <span class="submit-label">Save</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

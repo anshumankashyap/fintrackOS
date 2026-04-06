@@ -14,7 +14,7 @@ DEBUG = False
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="").split(",")
 
-# ── Production Database (PostgreSQL) ─────────────────────────────
+# Production Database (PostgreSQL)
 DATABASE_URL = config("DATABASE_URL", default=None)
 if DATABASE_URL:
     DATABASES = {  # noqa: F405
@@ -25,7 +25,7 @@ if DATABASE_URL:
         )
     }
 
-# ── Security Headers ─────────────────────────────────────────────
+# Security Headers
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_HSTS_SECONDS = 31536000          # 1 year
@@ -37,7 +37,7 @@ CSRF_COOKIE_SECURE = True
 X_FRAME_OPTIONS = "DENY"
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 
-# ── Logging: file + console in production ────────────────────────
+# Logging: file + console in production
 import os
 os.makedirs(str(BASE_DIR / "logs"), exist_ok=True)  # noqa: F405
 
@@ -50,11 +50,11 @@ LOGGING["handlers"]["file"] = {  # noqa: F405
 }
 LOGGING["loggers"]["finance"]["handlers"] = ["console", "file"]  # noqa: F405
 
-# ── Static files ──────────────────────────────────────────────────
+# Static files
 STATIC_ROOT = BASE_DIR / "staticfiles"  # noqa: F405
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# ── Email ─────────────────────────────────────────────────────────
+# Email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = config("EMAIL_HOST", default="smtp.gmail.com")
 EMAIL_PORT = config("EMAIL_PORT", default=587, cast=int)

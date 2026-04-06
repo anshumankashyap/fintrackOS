@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Transactions{% endblock %}
+
+{% block content %}
+<h1 class="h3 fw-bold mb-1">Transactions</h1>
+<p class="text-muted mb-4">All financial records</p>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body border-bottom bg-white py-3">
+    <div class="row g-2 align-items-end">
+      <div class="col-md-4">
+        <label class="form-label small text-muted mb-1">Search</label>
+        <input type="search" class="form-control" id="tx-search" placeholder="Title, category, notes…">
+      </div>
+      <div class="col-md-3">
+        <label class="form-label small text-muted mb-1">Sort</label>
+        <select class="form-select" id="tx-ordering">
+          <option value="-date">Newest first</option>
+          <option value="date">Oldest first</option>
+          <option value="-amount">Amount high → low</option>
+          <option value="amount">Amount low → high</option>
+        </select>
+      </div>
+      <div class="col-md-2 ms-md-auto">
+        <button type="button" class="btn btn-outline-secondary w-100" id="tx-apply-filters">Apply</button>
+      </div>
+    </div>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0" id="tx-table">
+      <thead class="table-light">
+        <tr>
+          <th class="ps-4">Title</th>
+          <th>Category</th>
+          <th>Type</th>
+          <th class="text-end">Amount</th>
+          <th>Date</th>
+          <th class="text-end pe-4" id="tx-actions-col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="tx-tbody">
+        <tr><td colspan="6" class="text-center text-muted py-5">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer bg-white d-flex flex-wrap justify-content-between align-items-center gap-2 py-3">
+    <span class="text-muted small" id="tx-page-info"></span>
+    <div class="btn-group">
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="tx-prev" disabled>Previous</button>
+      <button type="button" class="btn btn-outline-secondary btn-sm" id="tx-next" disabled>Next</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/transactions.js' %}"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", async () => {
+    if (!requireAuth()) return;
+    await initShellNav();
+    initTransactionsPage();
+  });
+</script>
+{% endblock %}

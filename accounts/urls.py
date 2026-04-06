@@ -13,17 +13,17 @@ from .views import (
 )
 
 urlpatterns = [
-    # ── Public ──────────────────────────────────────────────────
+    # Public
     path("register/",        RegisterView.as_view(),    name="auth-register"),
     path("login/",           LoginView.as_view(),        name="auth-login"),
     path("token/refresh/",   TokenRefreshView.as_view(), name="token-refresh"),
 
-    # ── Authenticated ────────────────────────────────────────────
+    # Authenticated
     path("logout/",          LogoutView.as_view(),       name="auth-logout"),
     path("me/",              MeView.as_view(),            name="auth-me"),
     path("change-password/", ChangePasswordView.as_view(),name="auth-change-password"),
 
-    # ── Admin only ───────────────────────────────────────────────
+    # Admin only
     path("users/",           UserListView.as_view(),     name="user-list"),
     path("users/<uuid:pk>/", UserDetailView.as_view(),   name="user-detail"),
 ]

@@ -7,58 +7,74 @@ Design decisions:
   - UUID primary key (safe for public APIs)
   - amount stored as Decimal (never float — precision matters for money)
   - transaction_type uses TextChoices for DB-level integrity
-  - category stored as free-text CharField (flexible; can be constrained later)
-  - created_by FK with PROTECT (deleting a user doesn't wipe their records)
-  - Indexes on date, category, transaction_type for fast dashboard queries
+  - category stored as CharField; allowed labels are CATEGORY_CHOICES (validated in serializer, case-insensitive)
+  - created_by FK required (PROTECT) — every record has an owner
+  - Soft delete via is_deleted (default manager excludes deleted rows)
 """
 
 import uuid
+from decimal import Decimal
 
 from django.conf import settings
 from django.core.validators import MinValueValidator
 from django.db import models
-from django.utils import timezone
 
 
 class TransactionType(models.TextChoices):
-    INCOME  = "income",  "Income"
+    INCOME = "income", "Income"
     EXPENSE = "expense", "Expense"
+
+
+class FinancialRecordQuerySet(models.QuerySet):
+    """QuerySet that can include soft-deleted rows when needed."""
+
+    def active_only(self):
+        return self.filter(is_deleted=False)
+
+
+class FinancialRecordManager(models.Manager):
+    """Default manager: non-deleted records only."""
+
+    def get_queryset(self):
+        return FinancialRecordQuerySet(self.model, using=self._db).filter(is_deleted=False)
 
 
 class FinancialRecord(models.Model):
     """
     Single financial transaction record.
-
-    Fields:
-        id               — UUID PK
-        title            — short description (e.g. "Consulting Invoice #42")
-        amount           — positive decimal, max 12 digits, 2 decimal places
-        category         — user-defined label (e.g. "Salary", "Rent", "Travel")
-        description      — optional long-form notes
-        transaction_type — income | expense
-        date             — the date the transaction occurred (not created_at)
-        created_by       — FK to the user who entered this record
-        created_at       — auto-set on insert
-        updated_at       — auto-updated on every save
     """
+
+    CATEGORY_CHOICES = [
+        ("Education", "Education"),
+        ("Entertainment", "Entertainment"),
+        ("Food & Dining", "Food & Dining"),
+        ("Groceries", "Groceries"),
+        ("Health", "Health"),
+        ("Investments", "Investments"),
+        ("Rent", "Rent"),
+        ("Salary", "Salary"),
+        ("Travel", "Travel"),
+        ("Utilities", "Utilities"),
+        ("Office", "Office"),
+        ("Equipment", "Equipment"),
+        ("Consulting", "Consulting"),
+        ("Other", "Other"),
+    ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     title = models.CharField(
-        max_length=255,
+        max_length=50,
         help_text="Short title for the transaction.",
     )
     amount = models.DecimalField(
         max_digits=14,
         decimal_places=2,
-        validators=[MinValueValidator(0.01, message="Amount must be greater than zero.")],
+        validators=[MinValueValidator(Decimal("0.01"), message="Amount must be greater than zero.")],
         help_text="Transaction amount. Must be positive.",
     )
-    category = models.CharField(
-        max_length=100,
-        db_index=True,
-        help_text="Free-text category label (e.g. Salary, Rent, Travel).",
-    )
+    # Allowed values enforced in FinancialRecordSerializer (see CATEGORY_CHOICES)
+    category = models.CharField(max_length=100, db_index=True)
     description = models.TextField(
         blank=True,
         default="",
@@ -76,26 +92,28 @@ class FinancialRecord(models.Model):
     )
     created_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.PROTECT,       # Never lose records when a user is deleted
+        on_delete=models.PROTECT,
         related_name="financial_records",
-        null=True,
-        blank=True,
     )
+    is_deleted = models.BooleanField(default=False, db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    objects = FinancialRecordManager()
+    all_records = models.Manager()
+
     class Meta:
-        db_table  = "financial_records"
-        ordering  = ["-date", "-created_at"]
-        indexes   = [
+        db_table = "financial_records"
+        ordering = ["-date", "-created_at"]
+        indexes = [
             models.Index(fields=["date"]),
             models.Index(fields=["category"]),
             models.Index(fields=["transaction_type"]),
             models.Index(fields=["created_by", "date"]),
-            # Composite index for the most common dashboard query
             models.Index(fields=["transaction_type", "date"]),
+            models.Index(fields=["created_by", "is_deleted"]),
         ]
-        verbose_name        = "Financial Record"
+        verbose_name = "Financial Record"
         verbose_name_plural = "Financial Records"
 
     def __str__(self):
